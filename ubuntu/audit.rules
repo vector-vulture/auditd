@@ -440,7 +440,7 @@
 -w /etc/profile -p wa -k shell_profiles
 -w /etc/shells -p wa -k shell_profiles
 #-w /etc/bashrc -p wa -k shell_profiles        # Not present by default; Ubuntu uses /etc/bash.bashrc
--w /etc/bash.bashrc -p wa -k shell_profiles   # Add this instead for bash system-wide config
+-w /etc/bash.bashrc -p wa -k shell_profiles
 #-w /etc/csh.cshrc -p wa -k shell_profiles     # Not present by default
 #-w /etc/csh.login -p wa -k shell_profiles     # Not present by default
 #-w /etc/fish/ -p wa -k shell_profiles         # Fish shell not installed by default
