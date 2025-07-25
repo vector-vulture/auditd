@@ -4,7 +4,7 @@
 #   / ___ / /_/ / /_/ / / /_/ /_/ /
 #  /_/  |_\__,_/\__,_/_/\__/\__,_/
 #
-# Linux Audit Daemon - Best Practice Configuration
+# Linux Audit Daemon - Best Practice Configuration for Ubuntu 24.04
 # /etc/audit/audit.rules
 #
 # Compiled by Vector Vulture
