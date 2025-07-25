@@ -1,1 +1,1 @@
-test
+A collection of auditd configuration files. 
