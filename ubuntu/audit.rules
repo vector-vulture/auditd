@@ -25,10 +25,6 @@
 # Remove any existing rules
 -D
 
-# Buffer Size
-## Feel free to increase this if the machine panic's
--b 8192
-
 # Failure Mode
 ## Possible values: 0 (silent), 1 (printk, print a failure message), 2 (panic, halt the system)
 -f 1
@@ -75,8 +71,8 @@
 -a never,user -F subj_type=crond_t
 -a never,exit -F subj_type=crond_t
 
-## This prevents chrony from overwhelming the logs
--a never,exit -F arch=b64 -S adjtimex -F auid=-1 -F uid=chrony -F subj_type=chronyd_t
+## Uncommented, chrony user runs as systemd, user does not exist
+# -a never,exit -F arch=b64 -S adjtimex -F auid=-1 -F uid=chrony -F subj_type=chronyd_t
 
 ## This is not very interesting and wastes a lot of space if the server is public facing
 -a always,exclude -F msgtype=CRYPTO_KEY_USER
@@ -152,8 +148,8 @@
 ## Change swap (only attributable)
 -a always,exit -F arch=b64 -S swapon -S swapoff -F auid!=-1 -k swap
 
-## Time
--a always,exit -F arch=b64 -F uid!=ntp -S adjtimex -S settimeofday -S clock_settime -k time
+## Time - Uncommented NTP user does not exist
+# -a always,exit -F arch=b64 -F uid!=ntp -S adjtimex -S settimeofday -S clock_settime -k time
 ### Local time zone
 -w /etc/localtime -p wa -k localtime
 
@@ -477,13 +473,15 @@
 -w /usr/bin/dbus-send -p x -k dbus_send
 -w /usr/bin/gdbus -p x -k gdubs_call
 
+## Uncommented rules until section pkexec invocation due to syntax errors
+
 ## setfiles
--a always,exit -F path=/usr/bin/setfiles -F perm=x -F auid>=500 -F auid!=4294967295 -k -F T1078_Valid_Accounts
--a always,exit -F path=/usr/sbin/setfiles -F perm=x -F auid>=500 -F auid!=4294967295 -k -F T1078_Valid_Accounts
+# -a always,exit -F path=/usr/bin/setfiles -F perm=x -F auid>=500 -F auid!=4294967295 -k -F T1078_Valid_Accounts
+# -a always,exit -F path=/usr/sbin/setfiles -F perm=x -F auid>=500 -F auid!=4294967295 -k -F T1078_Valid_Accounts
 
 ### dbus
--a always,exit -F path=/lib64/dbus-1/dbus-daemon-launch-helper -F perm=x -F auid>=500 -F auid!=4294967295 -k T1078_Valid_Accounts
--a always,exit -F path=/usr/lib64/dbus-1/dbus-daemon-launch-helper -F perm=x -F auid>=500 -F auid!=4294967295 -k T1078_Valid_Accounts
+# -a always,exit -F path=/lib64/dbus-1/dbus-daemon-launch-helper -F perm=x -F auid>=500 -F auid!=4294967295 -k T1078_Valid_Accounts
+# -a always,exit -F path=/usr/lib64/dbus-1/dbus-daemon-launch-helper -F perm=x -F auid>=500 -F auid!=4294967295 -k T1078_Valid_Accounts
 
 ## pkexec invocation
 ### may indicate privilege escalation CVE-2021-4034
@@ -708,9 +706,9 @@
 -a always,exit -F arch=b32 -F path=/usr/bin/falcon-agent -p x -F key=falcon_agent
 -a always,exit -F arch=b64 -F path=/usr/bin/falcon-agent -p x -F key=falcon_agent
 
-# Identify CrowdStrike Falcon Sensor network
--a always,exit -F arch=b32 -S connect -F dir=+ -F obj=/opt/CrowdStrike/falcon-sensor -F key=crowdstrike_network
--a always,exit -F arch=b64 -S connect -F dir=+ -F obj=/opt/CrowdStrike/falcon-sensor -F key=crowdstrike_network
+# Identify CrowdStrike Falcon Sensor network, uncommented for unsupported field : -F obj=
+#-a always,exit -F arch=b32 -S connect -F dir=+ -F obj=/opt/CrowdStrike/falcon-sensor -F key=crowdstrike_network
+#-a always,exit -F arch=b64 -S connect -F dir=+ -F obj=/opt/CrowdStrike/falcon-sensor -F key=crowdstrike_network
 
 ## Docker
 -w /usr/bin/dockerd -k docker
