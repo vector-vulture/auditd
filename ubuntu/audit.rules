@@ -60,9 +60,8 @@
 -a always,exit -F path=/usr/sbin/aulastlogin -F perm=x -k audittools
 -a always,exit -F path=/usr/sbin/auvirt -F perm=x -k audittools
 
-# Filters ---------------------------------------------------------------------
+# Filters ---- We put these early because audit is a first match wins system.
 
-### We put these early because audit is a first match wins system.
 
 ## Ignore current working directory records
 -a always,exclude -F msgtype=CWD
@@ -71,8 +70,9 @@
 -a never,user -F subj_type=crond_t
 -a never,exit -F subj_type=crond_t
 
-## Uncommented, chrony user runs as systemd, user does not exist
-# -a never,exit -F arch=b64 -S adjtimex -F auid=-1 -F uid=chrony -F subj_type=chronyd_t
+## Ignore AppArmor allowed events (still shows denies) 
+-a never,exit -F subj=apparmor -F perm=read
+-a never,exit -F subj=apparmor -F perm=write
 
 ## This is not very interesting and wastes a lot of space if the server is public facing
 -a always,exclude -F msgtype=CRYPTO_KEY_USER
@@ -86,6 +86,11 @@
 
 -a never,exit -F arch=b32 -F dir=/var/lock/lvm/ -F key=locklvm
 -a never,exit -F arch=b64 -F dir=/var/lock/lvm/ -F key=locklvm
+
+## Uncommented, chrony user runs as systemd, user does not exist
+# -a never,exit -F arch=b64 -S adjtimex -F auid=-1 -F uid=chrony -F subj_type=chronyd_t
+
+## 3rd Party applications 
 
 ## Filebeat 
 ### https://www.elastic.co/guide/en/beats/filebeat/current/directory-layout.html
