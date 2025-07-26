@@ -16,12 +16,6 @@
 #   Armor auditd rules
 #   	https://github.com/armor/auditd-config/tree/master
 #
-# Further rules
-# 	For PCI DSS compliance see:
-# 		https://github.com/linux-audit/audit-userspace/blob/master/rules/30-pci-dss-v31.rules
-# 	For NISPOM compliance see:
-# 		https://github.com/linux-audit/audit-userspace/blob/master/rules/30-nispom.rules
-
 # Remove any existing rules
 -D
 
