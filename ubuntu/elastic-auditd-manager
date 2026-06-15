@@ -1,0 +1,95 @@
+# auditd-manager ruleset (b64 only)
+
+# auditd self-tamper (T1562.006)
+-w /var/log/audit/ -p wa -k audit_tamper
+-w /etc/audit/ -p wa -k audit_config_mod
+-w /etc/libaudit.conf -p wa -k audit_config_mod
+-w /sbin/auditctl -p x -k audit_tools
+-w /sbin/auditd -p x -k audit_tools
+
+# kernel modules (T1547.006)
+-a always,exit -F arch=b64 -S init_module,finit_module,delete_module -F auid!=unset -k kernel_module
+-w /etc/modprobe.conf -p wa -k kernel_module
+-w /etc/modprobe.d/ -p wa -k kernel_module
+
+# ptrace injection (T1055) — a0: 0x4 ATTACH, 0x5 TRACEME, 0x6 CONT
+-a always,exit -F arch=b64 -S ptrace -F a0=0x4 -k process_injection
+-a always,exit -F arch=b64 -S ptrace -F a0=0x5 -k process_injection
+-a always,exit -F arch=b64 -S ptrace -F a0=0x6 -k process_injection
+
+# RWX mprotect (T1620) — a2=0x7 = R|W|X
+-a always,exit -F arch=b64 -S mprotect -F a2=0x7 -k rwx_mprotect
+
+# C2 sockets (T1071/T1059) — socket a0: 2 AF_INET, 10 AF_INET6; connect a2!=110 drops unix
+-a always,exit -F arch=b64 -S socket -F a0=2 -F auid>=1000 -F auid!=unset -k net_socket_inet
+-a always,exit -F arch=b64 -S socket -F a0=10 -F auid>=1000 -F auid!=unset -k net_socket_inet6
+-a always,exit -F arch=b64 -S connect -F a2!=110 -F auid>=1000 -F auid!=unset -k net_connect
+
+# time change / timestomp (T1070.006)
+-a always,exit -F arch=b64 -S adjtimex,settimeofday,clock_settime -F auid!=unset -k time_change
+-w /etc/localtime -p wa -k time_change
+
+# credential stores (T1003) — rwa catches reads
+-w /etc/shadow -p rwa -k cred_access
+-w /etc/gshadow -p rwa -k cred_access
+-w /etc/security/opasswd -p rwa -k cred_access
+-w /etc/passwd -p wa -k identity_mod
+-w /etc/group -p wa -k identity_mod
+
+# sudoers (T1548.003)
+-w /etc/sudoers -p rwa -k priv_esc
+-w /etc/sudoers.d/ -p rwa -k priv_esc
+
+# setuid/setgid/xattr (T1548.001)
+-a always,exit -F arch=b64 -S chmod,fchmod,fchmodat -F auid>=1000 -F auid!=unset -k perm_mod
+-a always,exit -F arch=b64 -S chown,fchown,fchownat,lchown -F auid>=1000 -F auid!=unset -k perm_mod
+-a always,exit -F arch=b64 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid>=1000 -F auid!=unset -k perm_mod
+-a always,exit -F arch=b64 -S setuid,setgid,setreuid,setregid -F auid!=unset -k setid
+
+# PAM / auth (T1556/T1098)
+-w /etc/pam.d/ -p wa -k pam_mod
+-w /etc/security/ -p wa -k pam_mod
+-w /etc/nsswitch.conf -p wa -k pam_mod
+
+# ssh config & keys (T1098.004)
+-w /etc/ssh/sshd_config -p wa -k sshd_config_mod
+-w /etc/ssh/sshd_config.d/ -p wa -k sshd_config_mod
+-w /root/.ssh/ -p wa -k ssh_root_keys
+
+# cron / at persistence (T1053.003)
+-w /etc/crontab -p wa -k cron
+-w /etc/cron.d/ -p wa -k cron
+-w /etc/cron.daily/ -p wa -k cron
+-w /etc/cron.hourly/ -p wa -k cron
+-w /etc/cron.weekly/ -p wa -k cron
+-w /etc/cron.monthly/ -p wa -k cron
+-w /var/spool/cron/ -p wa -k cron
+-w /etc/cron.allow -p wa -k cron
+-w /etc/cron.deny -p wa -k cron
+-w /etc/at.allow -p wa -k cron
+-w /etc/at.deny -p wa -k cron
+-w /var/spool/at/ -p wa -k cron
+
+# systemd / init persistence (T1543.002)
+-w /etc/systemd/system/ -p wa -k systemd_persist
+-w /etc/systemd/user/ -p wa -k systemd_persist
+-w /lib/systemd/system/ -p wa -k systemd_persist
+-w /etc/init.d/ -p wa -k init_persist
+-w /etc/rc.local -p wa -k init_persist
+
+# shell init persistence (T1546.004)
+-w /etc/profile -p wa -k shell_persist
+-w /etc/profile.d/ -p wa -k shell_persist
+-w /etc/bash.bashrc -p wa -k shell_persist
+-w /etc/shells -p wa -k shell_persist
+
+# session/login records (T1070/T1021)
+-w /var/run/utmp -p wa -k session
+-w /var/log/wtmp -p wa -k session
+-w /var/log/btmp -p wa -k session
+-w /var/log/lastlog -p wa -k session
+
+# linker hijack / LD_PRELOAD (T1574.006)
+-w /etc/ld.so.conf -p wa -k linker_hijack
+-w /etc/ld.so.conf.d/ -p wa -k linker_hijack
+-w /etc/ld.so.preload -p wa -k linker_hijack
